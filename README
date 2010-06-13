@@ -1,0 +1,66 @@
+NAME
+    Voter::NVRA - Generate Voter Registration Forms
+
+VERSION
+    Version 0.01
+
+SYNOPSIS
+       > use Voter::NVRA;
+
+       # Run with default settings and bare minimums required. 
+       > my $foo = Voter::NVRA->new();
+       > my $file_loc = $foo->process(fname => 'Homer',
+                                lname       => 'Simpson',
+                                home_addr   => '55 Evergreen Terrance',
+                                home_city   => 'Springfield',
+                                home_st     => 'IL', # yah yah..
+                                home_zip    => '90701', # There are actually two/three
+                                DOB_month   => '3',
+                                DOB_day     => '11',
+                                DOB_year    => '56',
+                                id_num      => '568-47-0008'));
+
+DESCRIPTION
+    *NOTE: UNSTABLE VERSION WITH NO VALIDATIONS... DO NOT USE IN PRODUCTION
+    YET*
+
+    The National Voter Rights Act of 1993 created 'The National Mail Voter
+    Registration Form' which is one standard form for voters to register to
+    vote and update voter registration information. Several states do not
+    accept this form or require more info. Please consult:
+    http://www.eac.gov
+
+DEPENDENCIES
+    Requires Inkscape!!! Ubuntu/Debian: sudo apt-get install inkscape;
+
+    cpanm Text::MicroTemplate::File cpanm File::ShareDir
+
+AUTHOR
+    Naveen Manivannan, `<naveen.manivannan at gmail.com>'
+
+BUGS
+    Submit bugs through github and please consider forking.
+
+SUPPORT
+    You can find documentation for this module with the perldoc command.
+
+        perldoc Voter::NVRA
+
+CONTRIBUTORS
+LICENSE AND COPYRIGHT
+    Copyright 2010 Naveen Manivannan.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation; either version 2.1 of the License, or (at
+    your option) any later version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
+    General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program; if not, write to the Free Software Foundation,
+    Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
