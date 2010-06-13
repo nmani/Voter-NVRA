@@ -1,0 +1,25 @@
+---
+abstract: 'The great new Voter::NVRA!'
+author:
+  - 'Naveen Manivannan <naveen.manivannan@gmail.com>'
+build_requires:
+  Test::Exception: 0.27
+  Test::More: 0
+configure_requires:
+  Module::Build: 0.36
+dynamic_config: 0
+generated_by: 'Module::Build version 0.3607'
+license: lgpl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Voter-NVRA
+provides:
+  Voter::NVRA:
+    file: lib/Voter/NVRA.pm
+    version: 0.01
+requires:
+  File::ShareDir: 1.00
+resources:
+  license: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
+version: 0.01
