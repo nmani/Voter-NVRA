@@ -93,10 +93,10 @@
   </State>
   <State name="Illinois" abbrv="IL">
     <Reg_Deadline>28 days prior to each election.</Reg_Deadline>
-    <Addr_Line>Election Division</Addr_Line>
-    <Addr_Line>Office of the Secretary of State</Addr_Line>
-    <Addr_Line>302 West Washington Street, Room E-204</Addr_Line>
-    <Addr_Line>Indianapolis, IN 46204-2743</Addr_Line>
+    <Addr_Line>Division of Voter Registration Services</Addr_Line>
+    <Addr_Line>State Board of Elections</Addr_Line>
+    <Addr_Line>1020 South Spring Street</Addr_Line>
+    <Addr_Line>Springfield, IL 62704</Addr_Line>
   </State>
   <State name="Iowa" abbrv="IA">
     <Reg_Deadline>Must be delivered by 5 p.m. 10 days before the election, if it is a state primary or general election; 11 days before all others. Registration forms which are postmarked 15 or more days before an election are considered on time even if received after the deadline.</Reg_Deadline>
@@ -104,6 +104,13 @@
     <Addr_Line>First Floor, Lucas Building</Addr_Line>
     <Addr_Line>321 East 12th Street</Addr_Line>
     <Addr_Line>Des Moines, IA 50319</Addr_Line>
+  </State>
+  <State name="Indiana" abbrv="IN">
+    <Reg_Deadline>29 days prior to each election.</Reg_Deadline>
+    <Addr_Line>Election Division</Addr_Line>
+    <Addr_Line>Office of the Secretary of State</Addr_Line>
+    <Addr_Line>302 West Washington Street, Room E-204</Addr_Line>
+    <Addr_Line>Indianapolis, IN 46204-2743</Addr_Line>
   </State>
   <State name="Kansas" abbrv="KS">
     <Reg_Deadline>Postmarked or delivered 15 days before the election.</Reg_Deadline>
