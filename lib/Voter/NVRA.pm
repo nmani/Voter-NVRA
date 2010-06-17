@@ -3,11 +3,12 @@ package Voter::NVRA;
 use warnings;
 use strict;
 use Carp 'croak';
+use File::Temp qw(tempfile tempdir);
 use Time::Local qw(timegm);
 use Text::MicroTemplate::File;
-use File::ShareDir qw(dist_dir module_dir);
+use File::ShareDir qw(dist_dir);
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
 our $VERSION = '0.01';
 
@@ -15,24 +16,25 @@ sub new {
 
   my ($class, %options) = @_;
 
-  # Preload the templating stuff.?
-  #my $base_dir = '/home/naveen/nash/Voter/share/';
+  # Preload the templating stuff...
   my $base_dir = dist_dir('Voter-NVRA');
-
-
-  #my $base_dir = module_dir('Voter::NVRA') . "/templates/";
   my $renderer = Text::MicroTemplate::File->new(
 				   include_path => ["$base_dir/templates/"],
 				   escape_func=> undef, # Reminder for me to add feature Text::Micro.. later
 				  );
+  my $prim_meta = XML::Simple->new()->XMLin ($base_dir . '/meta/basic_state_info.xml', 
+					     KeyAttr => {State => 'abbrv'}) || 
+					       croak 'Couldn\'t find/process .XML meta file!';  
   
   bless {
 	 
 	 workdir  => delete $options{workdir}  || '/tmp/',
+	 outdir  => delete $options{outdir}  || '/tmp/',
 	 engine	  => delete $options{engine}  || 
 	 (system('which inkscape >/dev/null') == 0 ? 'inkscape' : croak 'Get inkscape, will add support for other engines later'),
 	 base_dir => $base_dir,
 	 renderer => \$renderer,
+	 meta => \$prim_meta,
 	 files    => delete $options{files}   || {template_cover => 'vtreg_cover.svg',
 						  template_form  => 'vtreg_form.svg',
 						  cover_vars     => 'vars_cover.svg',
@@ -71,7 +73,22 @@ sub _comment_wrap {
   return '-->' . $taco . '<!--';
 }
 
-sub process_file {
+# sub _rand_str
+# {
+#   # Thanks Guy Malachi of http://guymal.com
+# 	my $len_str=shift; 
+       
+# 	my @chars=('a'..'z','A'..'Z','0'..'9','_');
+# 	my $random_string;
+# 	foreach (1..$len_str) 
+# 	{
+# 		$random_string.=$chars[rand @chars];
+# 	}
+	
+# 	return $random_string;
+#}
+
+sub _process_file {
   my ($c_render, $filler, $files, $out_info) = @_;
   
   my %type;
@@ -96,15 +113,19 @@ sub process_file {
 
   my $vars = $c_render->render_file($type{vars}, $filler)->as_string;
 
+  # Move below out of new() later? 
   open(TEMPLATE, "<$out_info->{base_dir}/$type{template}") || croak "$out_info->{base_dir}/$type{template}";
   my @template = <TEMPLATE>;
   close TEMPLATE;
-  
+  #----
+
   splice @template, $#template - $type{offset}, 0, $vars;
-  
-  open(FB, ">", $out_info->{workdir} . $out_info->{filename} . '.svg');
-  print FB @template;
-  close(FB);
+
+  if (defined $out_info->{filename}) {
+    open(FB, ">", $out_info->{workdir} . $out_info->{filename} . '.svg');
+    print FB @template;
+    close(FB); 
+  }
 
 }
 
@@ -115,15 +136,13 @@ sub _inkfork_states {
   my @files = grep(/\.svg$/,readdir(STATES));
   closedir(STATES);
 
-  # 47 inkscape processes == 441MB of RAM w/o 'sleep 1' = crash.
-  # Be patient... You have been warned. :)
-  # the slower the computer
+  # Increase sleep for slower computers
   foreach my $file (@files) {
     sleep 1;
     my $pid = fork();
     $file =~ s/\.svg$//;
     if ($pid == -1) {
-      die;
+      croak 'Was not able to fork';
     } elsif ($pid == 0) {
       exec ('inkscape', '-A', 
 	    $dir . $file . '.pdf',
@@ -131,27 +150,26 @@ sub _inkfork_states {
     }
   }
 
-  while (wait() != -1) {}
+  while (wait() != -1) {} # No child left behind... :)
+  map { unlink ($dir . $_ . '.svg')  } @files;
+
 }
 
 sub process {
   my ($self, %param) = @_;
 
   # Check for contradicitons... do later
-  #
-  #
-  
+
   my @curr_time = (localtime(time))[3..5];
   my $filename = (join('',@curr_time) * (rand(1) + 1));
+  #my $filename = _rand_str(50);
 
   # Stupid in hindsight but w/e...
-  my $pid = fork();
-  if ($pid == -1) { 
-    croak 'Unable to fork';
-  } elsif ($pid == 0) {
+  # my $pid = fork();
+  # if ($pid == -1) { 
+  #   croak 'Unable to fork';
+  # } elsif ($pid == 0) {
     
-    # require JSON;
-    # Parse out full names do later
     if (defined $param{full_name}) {
       delete $param{full_name};
     }
@@ -224,21 +242,18 @@ sub process {
     
     unless (-d $self->{workdir} . 'vtreg_tmp/states/') {
       mkdir($self->{workdir} . 'vtreg_tmp/states/');
-      
-    my $prim_meta = XML::Simple->new()->XMLin ($self->{base_dir} . '/meta/basic_state_info.xml', 
-					       KeyAttr => {State => 'abbrv'}) || 
-						 croak 'Couldn\'t find/process .XML meta file!';
+ 
       
     # Preprocess state info files during first process... Build now so you don't have to later
-      foreach my $state (keys %{$prim_meta->{State}}) {
+      foreach my $state (keys %{${$self->{meta}}->{State}}) {
 	my %cover_hash;
 	
-	foreach my $num_line (0..$#{$prim_meta->{State}->{$state}->{Addr_Line}}) {
+	foreach my $num_line (0..$#{${$self->{meta}}->{State}->{$state}->{Addr_Line}}) {
         $cover_hash{"addr_line" . ($num_line + 1)} = 
-	  ${$prim_meta->{State}->{$state}->{Addr_Line}}[$num_line];
+	  ${${$self->{meta}}->{State}->{$state}->{Addr_Line}}[$num_line];
       }
 	
-      process_file(${$self->{renderer}}, \%cover_hash, $self->{files}, {workdir => $self->{workdir} . 'vtreg_tmp/states/',
+      _process_file(${$self->{renderer}}, \%cover_hash, $self->{files}, {workdir => $self->{workdir} . 'vtreg_tmp/states/',
 									filename => $state, base_dir => $self->{base_dir} . '/templates/'});
 	undef %cover_hash;
       }
@@ -246,14 +261,14 @@ sub process {
     } else { 
       
     }
-    
-    process_file(${$self->{renderer}}, $template_hash, $self->{files}, {workdir => $self->{workdir} . 'vtreg_tmp/' ,								     filename => $template_hash->{outfile}, base_dir => $self->{base_dir} . '/templates/'});
-    
-    #return $template_hash;
-    exit 0;
-  }
+  
+  _process_file(${$self->{renderer}}, $template_hash, $self->{files}, {workdir => $self->{workdir} . 'vtreg_tmp/' ,								     filename => $template_hash->{outfile}, base_dir => $self->{base_dir} . '/templates/'});
+  
+  #return $template_hash;
+  #exit 0;
+  #}
  
-  while (wait() != -1) {}  
+  #while (wait() != -1) {}  
   #Add more error handling later...
   #gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=finished.pdffile1.pdf file2.pdf
 
@@ -261,17 +276,15 @@ sub process {
     croak 'Inkscape failed, are you sure you have it installed?';
   }
   my @combine_pdf = qw(gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite);
-  push (@combine_pdf, "-sOutputFile=$filename". '_final.pdf', 
+  push (@combine_pdf, "-sOutputFile=$self->{outdir}$filename". '_final.pdf', 
 	"$self->{workdir}vtreg_tmp/$filename.pdf",
-	"$self->{workdir}vtreg_tmp/states/" . "$param{home_st}.pdf");
-
-  #  print Dumper(@combine_pdf);
-  #  die;
+	"$self->{workdir}vtreg_tmp/states/" . "$template_hash->{home_st}.pdf");
 
   $ENV{'TEMP'} = '/tmp/'; # Ghostscript requires it if files are too big... w/e
   if (system(@combine_pdf)) { croak 'Final pdf creation failed'};
 
-  return $filename . '_final.pdf';
+  return {file_location => $self->{outdir} . $filename . '_final.pdf', 
+	  data => $template_hash};
 }
 
 1;
@@ -323,9 +336,7 @@ Ghostscript is available by default on most linux distros.
 Ubuntu/Debian: sudo apt-get install gs;
 
 Perl Modules:
-cpanm Text::MicroTemplate::File
-cpanm File::ShareDir
-cpanm Time::Local
+> cpanm Text::MicroTemplate::File File::ShareDir Time::Local
 
 =head1 AUTHOR
 
