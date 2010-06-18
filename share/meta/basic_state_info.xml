@@ -93,7 +93,7 @@
   </State>
   <State name="Illinois" abbrv="IL">
     <Reg_Deadline>28 days prior to each election.</Reg_Deadline>
-    <Addr_Line>Division of Voter Registration Services</Addr_Line>
+    <Addr_Line>Div. of Voter Registration</Addr_Line>
     <Addr_Line>State Board of Elections</Addr_Line>
     <Addr_Line>1020 South Spring Street</Addr_Line>
     <Addr_Line>Springfield, IL 62704</Addr_Line>
