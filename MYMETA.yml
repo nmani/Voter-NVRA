@@ -1,5 +1,5 @@
 ---
-abstract: 'The great new Voter::NVRA!'
+abstract: 'Generate Voter Registration Forms'
 author:
   - 'Naveen Manivannan <naveen.manivannan@gmail.com>'
 build_requires:
