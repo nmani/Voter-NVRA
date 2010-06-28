@@ -20,11 +20,12 @@ my $builder = Module::Build->new(
     dist_authoring => {
       description => "Create new distributions",
       requires => {
-	'XML::Simple' => 0,	   
-	'Text::MicroTemplate'	    => 0.11,
-	'Text::MicroTemplate::File' => 0,
-	'Time::Local' =>0,
-	'Carp' => 0	   
+		   'XML::Simple' => 2.18,	   
+		   'Text::MicroTemplate'	    => 0.11,
+		   'Text::MicroTemplate::File' => 0,
+		   'Carp' => 0,
+		   'Time::Local' => 1.18,
+		   'File::Temp' => 0.22,
       },
       recommends => {
       },
