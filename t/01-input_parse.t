@@ -5,10 +5,10 @@ use Test::More;
 use Test::Exception;
 use Data::Dumper;
 
-use lib '/home/naveen/nash/Voter/lib/';
+use blib;
 use Voter::NVRA;
 
-plan tests => 21;
+plan tests => 27;
 
 
 {
@@ -53,25 +53,28 @@ plan tests => 21;
 			    id_num    => '568-47-0008'));
 }
 
+
 {
   # DOB Parsing
   ok(my $test = Voter::NVRA->new(), 'Testing DOB');
-  ok(my $hehe = $test->process(fname     => 'Homer',
+  ok(my $hehe = $test->process(prefix => 'Mr.',
+			       fname     => 'Homer',
 			       lname     => 'Simpson',
+			       suffix => 'II',
 			       home_addr => '55 Evergreen Terrance',
 			       home_city => 'Springfield',
-			       home_st   => 'IL', # yah yah..
+			       home_st   => 'IL',# yah yah..
 			       home_zip  => '90701', # Principal Charming episode
 			       DOB  => '11/10/1986',
 			       id_num    => '568-47-0008',
 			      ));
- # is($hehe->{DOB_year}, 86);
- # is($hehe->{DOB_month}, 11);
- # is($hehe->{DOB_day}, 10);
+ is($hehe->{data}->{DOB_year}, 86);
+ is($hehe->{data}->{DOB_month}, 11);
+ is($hehe->{data}->{DOB_day}, 10);
 }
- 
+
 {
-  ok(my $test = Voter::NVRA->new(), 'Testing DOB');
+  ok(my $test = Voter::NVRA->new( engine => 'svg2pdf'), 'Testing DOB again and Different Engine');
   ok(my $hehe = $test->process(fname     => 'Homer',
 			       lname     => 'Simpson',
 			       home_addr => '55 Evergreen Terrance',
@@ -81,18 +84,20 @@ plan tests => 21;
 			       DOB  => '1/3/86',
 			       id_num    => '568-47-0008',
 			      ));
-#  is($hehe->{DOB_year}, 86);
-#  is($hehe->{DOB_month}, 1);
-#  is($hehe->{DOB_day}, 3);
+  is($hehe->{data}->{DOB_year}, 86);
+  is($hehe->{data}->{DOB_month}, 1);
+  is($hehe->{data}->{DOB_day}, 3);
 
 }
 
 {
   # Everything
   ok(my $process_test =  Voter::NVRA->new());
-  ok($process_test->process(fname	 => 'Pablo',
+  ok($process_test->process(prefix => 'Mr.',
+			    fname	 => 'Pablo',
 			    mname	 => 'Sexy',
 			    lname	 => 'Escobar',
+			    suffix => 'III',
 			    home_addr	 => '313 Reed Street',
 			    home_city	 => 'Tuscaloosa',
 			    home_st	 => 'AL', 
@@ -105,9 +110,11 @@ plan tests => 21;
 			    phone_num	 => '(205)551-1111',
 			    race_ethnic	 => 'Hispanic',
 			    party	 => 'Communist',
+			    change_prefix => 'Mrs.',
 			    change_lname => 'Fred',
 			    change_mname => 'Sexy',
 			    change_fname => 'Thompson',
+			    change_suffix=> 'II',
 			    prev_addr	 => '111 S. McFarland Banks Road',
 			    prev_apt_num => '211',
 			    prev_city	 => 'Tuscaloosa',
