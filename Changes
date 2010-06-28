@@ -1,5 +1,13 @@
 Revision history for Voter
 
+0.02	Wed Jun 16 07:56:10 2010
+	-Removed forking in process() to allow for return hash
+	-Added support second rendering engine: pdf2svg
+	-Changed method for random filename
+	-Allowed for '0' before single digits in pdf for DOB/curr_date
+	-Error in meta XML for coding states IL and IN fixed
+	-Added support for honorifics (Mr., Mrs., ect) and suffixes (II, III).
+	-
+ 
 0.01    Date/time
-        First version, released on an unsuspecting world.
-
+        -First version, released on an unsuspecting world.
