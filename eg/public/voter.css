@@ -1,0 +1,57 @@
+/* #citizen */
+/* { */
+
+/* background: #222; */
+
+/* } */
+
+/* #change */
+/* { */
+
+/* background: #666; */
+
+/* } */
+
+/* .verify */
+/* { */
+/* 	float: left; */
+/* 	padding: 10px 2% 10px 2%; */
+/* 	margin: 0px; */
+/* 	border: 0px; */
+/* 	background: #666; */
+/* 	width: 50%; /\* ie5win fudge begins *\/ */
+/* 	voice-family: "\"}\""; */
+/* 	voice-family:inherit; */
+/* 	width: 46%; */
+/* 	color:red; */
+
+/* } */
+
+
+/* .content */
+/* { */
+/*     position: float; */
+/*     background: red; */
+/*     width:100%; */
+/* } */
+
+/* #bbox */
+/* { */
+
+
+/* width: 100%; */
+
+/* } */
+
+/* #dammit */
+/* { */
+
+/* border:10px dotted #00f; */
+/* background: orange; */
+/* } */
+
+#alert
+{
+
+display:none;
+}
