@@ -1,4 +1,4 @@
-  <text
+<text
      x="171.98935"
      y="131.71207"
      id="lname"
@@ -129,7 +129,7 @@
        x="110.2891"
        y="211.7776"
        id="tspan6679-4-7-1-5-6"
-       style="font-size:10.39999962px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?= _comment_wrap($_[0]->{DOB_month}) ?>--></tspan></text>
+       style="font-size:10.39999962px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?=(length($_[0]->{DOB_month}) == 1) ? _comment_wrap('0' . $_[0]->{DOB_month}): _comment_wrap($_[0]->{DOB_month})?>--></tspan></text>
   <text
      x="137.94994"
      y="211.77753"
@@ -139,7 +139,7 @@
        x="137.94994"
        y="211.77753"
        id="tspan6679-4-7-1-5-6-4"
-       style="font-size:10.39999962px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?= _comment_wrap($_[0]->{DOB_day}) ?>--></tspan></text>
+       style="font-size:10.39999962px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?=(length($_[0]->{DOB_day})== 1) ?_comment_wrap('0' . $_[0]->{DOB_day}) : _comment_wrap($_[0]->{DOB_day})?>--></tspan></text>
   <text
      x="163.9816"
      y="211.77753"
@@ -149,7 +149,7 @@
        x="163.9816"
        y="211.77753"
        id="tspan6679-4-7-1-5-6-4-9"
-       style="font-size:10.39999962px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?= _comment_wrap($_[0]->{DOB_year}) ?>--></tspan></text>
+       style="font-size:10.39999962px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?=_comment_wrap($_[0]->{DOB_year})?>--></tspan></text>
   <text
      x="252.67355"
      y="215.35379"
@@ -199,7 +199,7 @@
        x="342.91187"
        y="338.20981"
        id="tspan7252"
-       style="font-size:16px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?= _comment_wrap($_[0]->{curr_month}) ?>--></tspan></text>
+       style="font-size:16px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?=(length($_[0]->{curr_month}) == 1) ? _comment_wrap('0' . $_[0]->{curr_month}) : _comment_wrap($_[0]->{curr_month})?>--></tspan></text>
   <text
      x="386.57275"
      y="338.20972"
@@ -209,7 +209,7 @@
        x="386.57275"
        y="338.20972"
        id="tspan6679-4-7-1-5-6-4-4"
-       style="font-size:16px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?= _comment_wrap($_[0]->{curr_day}) ?>--></tspan></text>
+       style="font-size:16px;text-align:center;text-anchor:middle;fill:#0000ff"><!--<?=(length($_[0]->{curr_day}) == 1) ? _comment_wrap('0' . $_[0]->{curr_day}) : _comment_wrap($_[0]->{curr_day})?>--></tspan></text>
   <text
      x="433.40451"
      y="338.20972"
@@ -314,16 +314,42 @@
       <path
          d="m 228.63281,78.28125 -9.80078,0 0,-9.48438 9.80078,0 0,9.48438 z m 0,0"
          id="citi0"
-         style="fill:none;stroke:#543f4c;stroke-width:1.85272801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+         style="fill:red;stroke:#543f4c;stroke-width:1.85272801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
       <path
          d="m 294.73047,78.652344 -9.8047,0 0,-9.488285 9.8047,0 0,9.488285 z m 0,0"
          id="citi1"
-         style="fill:none;stroke:#543f4c;stroke-width:1.85272801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+         style="fill:blue;stroke:#543f4c;stroke-width:1.85272801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
       <path
          d="m 228.78906,90.730468 -9.80079,0 0,-9.488285 9.80079,0 0,9.488285 z m 0,0"
          id="old0"
-         style="fill:none;stroke:#543f4c;stroke-width:1.85272801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+         style="fill:red;stroke:#543f4c;stroke-width:1.85272801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
       <path
          d="m 294.88672,91.097656 -9.80469,0 0,-9.488285 9.80469,0 0,9.488285 z m 0,0"
          id="old1"
-         style="fill:none;stroke:#543f4c;stroke-width:1.85272801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+         style="fill:blue;stroke:#543f4c;stroke-width:1.85272801;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1" />
+? my $name_mod = {'mr'	=> {top => [qw(52.044994 130.23444 10 7)],  bottom => [qw(55.544994 437.23444 10 5)]},
+?		 'mrs'  => {top => [qw(67.544994 130.23444 10 7)],  bottom => [qw(55.544994 444.23444 10 5)]},
+?		 'miss' => {top => [qw(84.544994 130.23444 12 7)],  bottom => [qw(55.544994 450.23444 10 5)]},
+?		 'ms'	=> {top => [qw(100.044994 130.23444 10 7)], bottom => [qw(55.544994 456.23444 10 5)]},
+?		 'jr'	=> {top => [qw(498.044994 130.23444 7 7)],  bottom => [qw(499.044994 451.23444 6 6)]},
+?		 'sr'	=> {top => [qw(508.044994 129.23444 7 7)],  bottom => [qw(508.044994 451.23444 6 6)]},
+?		 'ii'	=> {top => [qw(516.544994 129.23444 6 6)],  bottom => [qw(516.044994 451.23444 6 6)]},
+?		 'iii'  => {top => [qw(524.544994 129.23444 6 6)],  buttom => [qw(522.544994 451.23444 6 6)]},
+?		 'iv'	=> {top => [qw(534.044994 129.23444 6 6)],  bottom => [qw(531.544994 451.23444 6 6)]}};
+? if (defined $_[0]->{prefix}) {
+? $_[0]{prefix} =~ s/\.//;
+<ellipse cx='<?= $name_mod->{lc $_[0]->{prefix}}->{top}->[0]?>' cy='<?= $name_mod->{lc $_[0]->{prefix}}->{top}->[1]?>' rx='<?= $name_mod->{lc $_[0]->{prefix}}->{top}->[2]?>' ry='<?= $name_mod->{lc $_[0]->{prefix}}->{top}->[3]?>' style="fill:none;stroke:blue;stroke-width:2" opacity="1"/>
+? }
+? if (defined $_[0]->{change_prefix}) {
+? $_[0]{change_prefix} =~ s/\.//;
+<ellipse cx='<?= $name_mod->{lc $_[0]->{change_prefix}}->{bottom}->[0]?>' cy='<?= $name_mod->{lc $_[0]->{change_prefix}}->{bottom}->[1]?>' rx='<?= $name_mod->{lc $_[0]->{change_prefix}}->{bottom}->[2]?>' ry='<?= $name_mod->{lc $_[0]->{change_prefix}}->{bottom}->[3]?>' style="fill:none;stroke:blue;stroke-width:1" opacity="1"/>
+? }
+? if (defined $_[0]->{suffix}) {
+? $_[0]{suffix} =~ s/\.//;
+<ellipse cx='<?= $name_mod->{lc $_[0]->{suffix}}->{top}->[0]?>' cy='<?= $name_mod->{lc $_[0]->{suffix}}->{top}->[1]?>' rx='<?= $name_mod->{lc $_[0]->{suffix}}->{top}->[2]?>' ry='<?= $name_mod->{lc $_[0]->{suffix}}->{top}->[3]?>' style="fill:none;stroke:blue;stroke-width:2" opacity="1"/>
+? } 
+? if (defined $_[0]->{change_suffix}) {
+? $_[0]{change_suffix} =~ s/\.//;
+<ellipse cx='<?= $name_mod->{lc $_[0]->{change_suffix}}->{bottom}->[0]?>' cy='<?= $name_mod->{lc $_[0]->{change_suffix}}->{bottom}->[1]?>' rx='<?= $name_mod->{lc $_[0]->{change_suffix}}->{bottom}->[2]?>' ry='<?= $name_mod->{lc $_[0]->{change_suffix}}->{bottom}->[3]?>' style="fill:none;stroke:blue;stroke-width:2" opacity="1"/>
+? }
+
