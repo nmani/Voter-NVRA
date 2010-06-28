@@ -147,8 +147,7 @@ sub _engine {
 }
 
 sub _inkfork_states {
-  my ($engine, $dir) = shift || croak 'No directory provided';
-
+  my ($engine, $dir) = @_;
   opendir(STATES, $dir);
   my @files = grep(/\.svg$/,readdir(STATES));
   closedir(STATES);
@@ -213,7 +212,7 @@ sub process {
 			 fname	      => delete $param{fname} || _ecroak({fname  => 'first name'}),
 			 lname	      => delete $param{lname} || _ecroak({lname  => 'last name'}), 
 			 mname	      => delete $param{mname},
-			 suffix	      => delete $param{suffix},
+			 suffix	      => delete $param{suffix} || undef,
 			 home_addr    => delete $param{home_addr} || _ecroak({home_addr  => 'home street address'}),
 			 apt_num      => delete $param{apt_num},
 			 home_city    => delete $param{home_city} || _ecroak({home_city  => 'home city'}),
@@ -234,11 +233,11 @@ sub process {
 			 curr_month   => delete $param{curr_month} || $curr_time[1],
 			 curr_year => delete $param{curr_year} || 1900 + $curr_time[2],
 			 
-			 change_prefix => delete $param{change_prefix},
+			 change_prefix => delete $param{change_prefix} || undef,
 			 change_lname  => delete $param{change_lname},
 			 change_fname  => delete $param{change_fname},
 			 change_mname  => delete $param{change_mname},
-			 change_suffix => delete $param{change_suffix},
+			 change_suffix => delete $param{change_suffix} || undef,
 			 prev_addr     => delete $param{prev_addr},
 			 prev_apt_num  => delete $param{prev_apt_num},
 			 prev_city     => delete $param{prev_city},
@@ -268,7 +267,9 @@ sub process {
 									filename => $state, base_dir => $self->{base_dir} . '/templates/'});
 	undef %cover_hash;
       }
+
       _inkfork_states($self->{engine}, $self->{workdir} . 'vtreg_tmp/states/');
+
     } else { 
       
     }
@@ -277,7 +278,7 @@ sub process {
   
 
   _engine($self->{engine}, "$self->{workdir}vtreg_tmp/" . $filename . '.svg', "$self->{workdir}vtreg_tmp/" . $filename . '.pdf');
-  #unlink ("$self->{workdir}vtreg_tmp/$filename.svg");
+  unlink ("$self->{workdir}vtreg_tmp/$filename.svg");
 
   my @combine_pdf = qw(gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite);
   push (@combine_pdf, "-sOutputFile=$self->{outdir}$filename". '_final.pdf', 
