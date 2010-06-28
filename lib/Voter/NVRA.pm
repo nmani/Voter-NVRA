@@ -3,7 +3,7 @@ package Voter::NVRA;
 use warnings;
 use strict;
 use Carp 'croak';
-use File::Temp qw(tempfile tempdir);
+#use File::Temp qw(tempfile tempdir);
 use Time::Local qw(timegm);
 use Text::MicroTemplate::File;
 use File::ShareDir qw(dist_dir);
@@ -19,7 +19,7 @@ sub new {
   # Preload the templating stuff...
   my $base_dir = dist_dir('Voter-NVRA');
   my $renderer = Text::MicroTemplate::File->new(
-				   include_path => ["$base_dir/templates/"],
+				   include_path => [$base_dir . "/templates/"],
 				   escape_func=> undef, # Reminder for me to add feature Text::Micro.. later
 				  );
   my $prim_meta = XML::Simple->new()->XMLin ($base_dir . '/meta/basic_state_info.xml', 
@@ -28,13 +28,13 @@ sub new {
   
   bless {
 	 
-	 workdir  => delete $options{workdir}  || '/tmp/',
-	 outdir  => delete $options{outdir}  || '/tmp/',
+	 workdir  => delete $options{workdir} || '/tmp/',
+	 outdir	  => delete $options{outdir}  || '/tmp/',
 	 engine	  => delete $options{engine}  || 
-	 (system('which inkscape >/dev/null') == 0 ? 'inkscape' : croak 'Get inkscape, will add support for other engines later'),
+	 (system('which inkscape >/dev/null') == 0 ? 'inkscape' : croak 'No other templating engine found.'),
 	 base_dir => $base_dir,
 	 renderer => \$renderer,
-	 meta => \$prim_meta,
+	 meta	  => \$prim_meta,
 	 files    => delete $options{files}   || {template_cover => 'vtreg_cover.svg',
 						  template_form  => 'vtreg_form.svg',
 						  cover_vars     => 'vars_cover.svg',
@@ -44,7 +44,7 @@ sub new {
 }
 
 sub _age {
-
+  
   # I don't care enough about accuracy to use Data::Calc so shutup.
   my ($birth_month, $birth_day, $birth_year) = split('/', shift); 
   my ($elec_month, $elec_day, $elec_year) = split('/',shift);
@@ -73,20 +73,20 @@ sub _comment_wrap {
   return '-->' . $taco . '<!--';
 }
 
-# sub _rand_str
-# {
-#   # Thanks Guy Malachi of http://guymal.com
-# 	my $len_str=shift; 
+sub _rand_str
+{
+  # Thanks Guy Malachi of http://guymal.com
+	my $len_str=shift; 
        
-# 	my @chars=('a'..'z','A'..'Z','0'..'9','_');
-# 	my $random_string;
-# 	foreach (1..$len_str) 
-# 	{
-# 		$random_string.=$chars[rand @chars];
-# 	}
+	my @chars=('a'..'z','A'..'Z','0'..'9','_');
+	my $random_string;
+	foreach (1..$len_str) 
+	{
+		$random_string.=$chars[rand @chars];
+	}
 	
-# 	return $random_string;
-#}
+	return $random_string;
+}
 
 sub _process_file {
   my ($c_render, $filler, $files, $out_info) = @_;
@@ -95,15 +95,15 @@ sub _process_file {
 
   if (defined $filler->{fname}) {
     %type = (
-	     vars => $files->{template_vars},
+	     vars     => $files->{template_vars},
 	     template => $files->{template_form},
-	     offset => 0,);
+	     offset   => 0,);
     
   } elsif (defined $filler->{addr_line1}) {
     %type = (
-	     vars => $files->{cover_vars},
+	     vars     => $files->{cover_vars},
 	     template => $files->{template_cover},
-	     offset => 1);
+	     offset   => 1);
     
   } else { 
     warn 'Shit went wrong...';
@@ -129,8 +129,25 @@ sub _process_file {
 
 }
 
+sub _engine {
+  my ($engine, $in_file, $out_file) = @_;
+
+  if ($engine eq 'svg2pdf') {
+    if ((system('svg2pdf', $in_file, $out_file)) == -1) {
+      croak 'svg2pdf has failed to process the file...';
+    }
+
+  } elsif ($engine eq 'inkscape') {
+    if (system('inkscape', '-A', $out_file, $in_file) == -1) {
+      croak 'Inkscape failed to process the file...';
+    }
+  } else {
+    croak 'Cannot figure out which rendering engine you want...';
+  }
+}
+
 sub _inkfork_states {
-  my ($dir) = shift || croak 'No directory provided';
+  my ($engine, $dir) = shift || croak 'No directory provided';
 
   opendir(STATES, $dir);
   my @files = grep(/\.svg$/,readdir(STATES));
@@ -143,10 +160,9 @@ sub _inkfork_states {
     $file =~ s/\.svg$//;
     if ($pid == -1) {
       croak 'Was not able to fork';
-    } elsif ($pid == 0) {
-      exec ('inkscape', '-A', 
-	    $dir . $file . '.pdf',
-	    $dir . $file . '.svg') || die;
+    } elsif ($pid == 0) {      
+      _engine($engine, $dir . $file . '.svg', $dir . $file . '.pdf');
+      exit 0;
     }
   }
 
@@ -158,17 +174,8 @@ sub _inkfork_states {
 sub process {
   my ($self, %param) = @_;
 
-  # Check for contradicitons... do later
-
   my @curr_time = (localtime(time))[3..5];
-  my $filename = (join('',@curr_time) * (rand(1) + 1));
-  #my $filename = _rand_str(50);
-
-  # Stupid in hindsight but w/e...
-  # my $pid = fork();
-  # if ($pid == -1) { 
-  #   croak 'Unable to fork';
-  # } elsif ($pid == 0) {
+  my $filename = _rand_str(50);
     
     if (defined $param{full_name}) {
       delete $param{full_name};
@@ -202,9 +209,11 @@ sub process {
 			 outfile      => delete $param{outfile} || $filename,
 			 cover	      => delete $param{cover} || 1,
 			 
+			 prefix	      => delete $param{prefix},
 			 fname	      => delete $param{fname} || _ecroak({fname  => 'first name'}),
 			 lname	      => delete $param{lname} || _ecroak({lname  => 'last name'}), 
 			 mname	      => delete $param{mname},
+			 suffix	      => delete $param{suffix},
 			 home_addr    => delete $param{home_addr} || _ecroak({home_addr  => 'home street address'}),
 			 apt_num      => delete $param{apt_num},
 			 home_city    => delete $param{home_city} || _ecroak({home_city  => 'home city'}),
@@ -223,17 +232,19 @@ sub process {
 			 id_num	      => delete $param{id_num} || _ecroak({id_num  => 'identification number'}),	,
 			 curr_day     => delete $param{curr_day} || $curr_time[0],
 			 curr_month   => delete $param{curr_month} || $curr_time[1],
-			 curr_year    => delete $param{curr_year} || 1900 + $curr_time[2],
+			 curr_year => delete $param{curr_year} || 1900 + $curr_time[2],
 			 
-			 change_lname => delete $param{change_lname},
-			 change_fname => delete $param{change_fname},
-			 change_mname => delete $param{change_mname},
-			 prev_addr    => delete $param{prev_addr},
-			 prev_apt_num => delete $param{prev_apt_num},
-			 prev_city    => delete $param{prev_city},
-			 prev_state   => delete $param{prev_state},
-			 prev_zip     => delete $param{prev_zip},
-			 app_helper   => delete $param{app_helper},
+			 change_prefix => delete $param{change_prefix},
+			 change_lname  => delete $param{change_lname},
+			 change_fname  => delete $param{change_fname},
+			 change_mname  => delete $param{change_mname},
+			 change_suffix => delete $param{change_suffix},
+			 prev_addr     => delete $param{prev_addr},
+			 prev_apt_num  => delete $param{prev_apt_num},
+			 prev_city     => delete $param{prev_city},
+			 prev_state    => delete $param{prev_state},
+			 prev_zip      => delete $param{prev_zip},
+			 app_helper    => delete $param{app_helper},
 			 
 			};
     
@@ -257,24 +268,17 @@ sub process {
 									filename => $state, base_dir => $self->{base_dir} . '/templates/'});
 	undef %cover_hash;
       }
-      _inkfork_states($self->{workdir} . 'vtreg_tmp/states/');
+      _inkfork_states($self->{engine}, $self->{workdir} . 'vtreg_tmp/states/');
     } else { 
       
     }
   
   _process_file(${$self->{renderer}}, $template_hash, $self->{files}, {workdir => $self->{workdir} . 'vtreg_tmp/' ,								     filename => $template_hash->{outfile}, base_dir => $self->{base_dir} . '/templates/'});
   
-  #return $template_hash;
-  #exit 0;
-  #}
- 
-  #while (wait() != -1) {}  
-  #Add more error handling later...
-  #gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=finished.pdffile1.pdf file2.pdf
 
-  if (system('inkscape', '-A', "$self->{workdir}vtreg_tmp/" . $filename . '.pdf', "$self->{workdir}vtreg_tmp/" . $filename . '.svg') == -1) {
-    croak 'Inkscape failed, are you sure you have it installed?';
-  }
+  _engine($self->{engine}, "$self->{workdir}vtreg_tmp/" . $filename . '.svg', "$self->{workdir}vtreg_tmp/" . $filename . '.pdf');
+  #unlink ("$self->{workdir}vtreg_tmp/$filename.svg");
+
   my @combine_pdf = qw(gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite);
   push (@combine_pdf, "-sOutputFile=$self->{outdir}$filename". '_final.pdf', 
 	"$self->{workdir}vtreg_tmp/$filename.pdf",
@@ -317,6 +321,7 @@ Version 0.01
 			    DOB_day	=> '11',
 			    DOB_year	=> '56',
 			    id_num	=> '568-47-0008'));
+   > print $file_loc->{file_location};
 
 =head1 DESCRIPTION
 
@@ -329,17 +334,63 @@ consult: http://www.eac.gov
 
 =head1 DEPENDENCIES
 
-Requires Inkscape and Ghostscript!!!
-Ubuntu/Debian: sudo apt-get install inkscape;
+VERY IMPORTANT:
 
-Ghostscript is available by default on most linux distros.
+Step 1: ImageMagick:
+>Ubuntu/Debian: sudo apt-get install imagemagick;
+>CentOS/RHEL: sudo yum install ImageMagick; #ImageMagick is case sensitive for w/e reason
+
+It should install GhostScript as dependency. Otherwise:
 Ubuntu/Debian: sudo apt-get install gs;
+CentOS/RHEL: sudo yum install ghostscript;
 
-Perl Modules:
-> cpanm Text::MicroTemplate::File File::ShareDir Time::Local
+Step 2: Install a engine (svg2pdf is HIGHLY RECOMMENDED FOR SPEED but requires setup)
+
+>Using Inkscape (minimum 9MB RAM used per process):
+>Ubuntu/Debian: sudo apt-get install inkscape;
+>CentOS/RHEL: sudo yum install inkscape;
+
+>OR
+
+>Using svg2pdf (minimum 12Kb RAM used per process):
+
+>Libraries needed to compile:
+>Get librsvg DEVELOPMENT FIRST =>
+>Ubuntu/Debian: sudo apt-get install librsvg2-dev;
+>CentOS/RHEL: sudo yum install librsvg2-devel;
+
+>Note: This should install the cairo and libxml2 dependencies.
+>Otherwise find'em yourself... =)
+
+Get svg2pdf =>
+
+git clone git://people.freedesktop.org/~cworth/svg2pdf
+git pull
+cd svg2pdf
+make
+mv svg2pdf /usr/local/bin/. #OR 'ln -s' if you want a symbolic link
+
+Step 3: Perl Modules (installed during './Build' but might as well do it now):
+GET cpanminus(http://github.com/miyagawa/cpanminus):
+> sudo cpanm Text::MicroTemplate::File File::ShareDir Time::Local
+
+=head1 INSTALLATION
+
+"So simple a caveman can do it..."
+
+perl Build.PL
+./Build
+./Build test
+sudo ./Build install
+
+=head1 API
+
+"But I use PHP / Python / Ruby (the Autotune of scripting languages), how do I use this?"
+"You don't. Go home and cry."
+
+You can access the server using a build in server
 
 =head1 AUTHOR
-
 Naveen Manivannan, C<< <naveen.manivannan at gmail.com> >>
 
 =head1 BUGS
