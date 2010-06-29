@@ -6,14 +6,28 @@ $(document).ready(function() {
 	$('form').find('button').text('Click me bitches');	
     });
 
+$(".tab_content").hide(); 
+	$("ul.tabs li:first").addClass("active").show(); 
+	$(".tab_content:first").show(); 
+
+	
+	$("ul.tabs li").click(function() {
+
+		$("ul.tabs li").removeClass("active"); 
+		$(this).addClass("active"); 
+		$(".tab_content").hide(); 
+
+		var activeTab = $(this).find("a").attr("href"); 
+		$(activeTab).fadeIn(); 
+		return false;
+	});
+
     $("form").submit(function(){
-	//$("div.content").fadeOut('slow');
-	// $("div.verify").click(function(){
-	//     $("div.content").slideToggle('slow');
-	// });
+		
 	$(this).find('button').attr('disabled', 'disabled');
 	$(this).find('button').text('Processing...');
 	 $.post("/new_form", $(this).serialize(), function(data){
+//	     alert(data);
 	     $('#alert').clone().appendTo('#notify_box').append('<p>Download:</p><a href="/download/' + data.filename + '">' + data.filename + '</a>').show('slow');
 
 	     $('form').find('button').removeAttr('disabled');

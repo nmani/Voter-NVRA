@@ -15,16 +15,18 @@
     <link rel="stylesheet" href="voter.css" type="text/css"/>
   </head>
 <body>
+<div class="warning"><p>There are NO client side validations current
+    and server side validations are minimal at best. DO NOT USE THIS
+    IN PRODUCTION ENVIRONMENT YET!!!!</p>
+</div>
 <div class="log"></div>
-  <!-- <div id="bbox"> -->
-  <!--   <div>  -->
-  <!--  <div id="citizen" class="verify">I am a US citizens who wants to register -->
-  <!--   to vote</div> -->
-  <!--   <div id="change" class="verify">I'm already registered and want to -->
-  <!--   change shit!</div> -->
-  <!--   </div> -->
-  <!-- </div> -->
-  <div class="content">
+<ul class="tabs">
+  <li><a href="#min">Basics Test</a></li>
+  <li><a href="#max">Everything</a></li>
+</ul>
+
+<div class="container">
+  <div id="min" class="tab_content">
     <form method="POST" action="/new_form1">
       <fieldset id="dammit">
 	<legend>Minimum Required</legend>
@@ -111,12 +113,8 @@
       </fieldset>
     </form>
   </div>
-<div id="update_area">
- <div id="notify_box">
-   <div id="alert"></div>
-  </div>
 
-  <div class="content2">
+  <div id="max" class="tab_content">
     <form method="POST" action="/new_form1">
       <fieldset id="dammit">
 	<legend>Maximum Possible</legend>
@@ -211,7 +209,7 @@
 	  <option value="Miss">Miss</option>
 	  <option value="Ms.">Ms.</option>
 	</select>
-	<input type="text" name="change_fname" value="Jack" /><input type="text" name="mname" value="Danger" /><br />
+	<input type="text" name="change_fname" value="Jack" /><input type="text" name="change_mname" value="Danger" /><br />
 	Change Last Name: <input type="text" name="change_lname" value="Alope"
 	/>
 	<select name="change_suffix">
@@ -235,7 +233,11 @@
   </div>
  
 </div>
- 
+</div> 
+<div id="update_area">
+ <div id="notify_box">
+   <div id="alert"></div>
+  </div>
 </body>
 
   
